@@ -17,6 +17,10 @@ b4 = 0.49671;
 
 %# load in density in real space from espresso
 n  = load("cd.dat");
+#ninv = 1./n;
+#ninv(ninv > 75) = 75;
+#n = 1./ninv;
+
 rs = (3/4/pi./n).^(1/3);
 rrs= sqrt(rs);
 
@@ -30,6 +34,10 @@ expp *= 4/9;
 
 %# final result for I(n)
 Ixc = 2./n .* (ac + expp);
+
+#x0 = 100;
+#x = 1./n;
+#Ixc = Ixc.*(1 - exp(-x0^2./x.^2));
 
 %# Rydberg: multiply by 2
 Ixc *= 2;

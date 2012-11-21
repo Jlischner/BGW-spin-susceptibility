@@ -1,0 +1,26 @@
+instructions for running getqffchi.m:
+-------------------------------------
+
+this code calculates the frequency-dependent spin 
+susceptibility in a plane wave basis, i.e. chi(q,G,G',w).
+
+To run the code, you have to provide 4 files:
+
+1) cd.dat (charge density in ascii from espresso scf calc)
+2) gvecs.dat (obtained by running epsinvomega on BGW chimat file)
+3) fulleps.dat (obtained by running epsinvomega on BGW chimat file)
+4) nmtx.dat (contains number of Gvecs for all the qpoints)
+
+Notes: 
+------
+1) to obtain cd.dat, do: 
+iotk convert charge-density.dat charge-density.xml 
+grep -v "<" charge-density.xml > cd.dat 
+
+2) to obtain nmtx.dat, do:
+grep nmtx out_bgw
+with out_bgw being the bgw output file
+
+Next, the file setup.m has to be modified:
+1) you have modify the lattice tensor R (in a.u.)
+2) you have to modify the FFT grid S (do grep FFT out on espresso scf out file) 

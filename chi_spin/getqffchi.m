@@ -1,14 +1,14 @@
 more off;
 setup;
 
-Nfreq = 12;
 nmtxdat = load("nmtx.dat");
-%# factor of two - see Rousseau paper
-chi0 = load("fullchi.dat")/2;
-vcdat  = load("vcoul");
+%# factor of two because spin-resolved chi (see Rousseau/Bergara)
+chi0 = load("fulleps.dat")/2;
+vcdat  = load("gvecs.dat");
 
 Nq = length(nmtxdat);
 chi0 = chi0(:,1) + I*chi0(:,2);
+Nfreq = length(chi0)/sum(nmtxdat.^2);
 
 %# calculate Ixc:
 getIxc;
@@ -22,7 +22,7 @@ for iq = 1:Nq;
   nmtx  = nmtxdat(iq);
   ind1 = sum(nmtxdat(1:iq-1));
   ind2 = sum(nmtxdat(1:iq)) ;
-  gvecs = vcdat( ind1+1 : ind2 , 4:6 );  
+  gvecs = vcdat( ind1+1 : ind2 , : );  
   indx = FFTbox(gvecs,S);
 
   ind1 = sum(nmtxdat(1:iq-1).^2);
@@ -31,12 +31,13 @@ for iq = 1:Nq;
   chi0w = reshape(chi0w,Nfreq,nmtx^2);
 
   for ifreq = 1:Nfreq;
-    printf("ifeq = %d \n",ifreq);
+
     chi0f = reshape( chi0w(ifreq,:),nmtx,nmtx);
 
     epsmat = zeros(nmtx,nmtx);
     for ncol = 1:nmtx;
-      printf("col %d \n",ncol);
+      
+      printf("col %d of %d \n",ncol,nmtx);
       %# transform each col of chi0 to real space
       %# multiply by Ixc and transform back
       row_chi0 = zeros(lenS,1);
@@ -54,5 +55,7 @@ for iq = 1:Nq;
     
   endfor;
 endfor;
+
+save output chi0h chih;
  
 more on;

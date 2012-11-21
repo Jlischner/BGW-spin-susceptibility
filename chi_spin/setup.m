@@ -6,11 +6,11 @@ global gbl_r;
 global gbl_dV;
 global gbl_Vcell;
 
-G2max=15.0
-S=[ 60; 60; 120]
+
+S=[ 60; 60; 360]
 R=[ 1.00000     0.0000      0.0000;
     0.00000     1.0000      0.0000;
-    0.00000     0.0000      2.0000]
+    0.00000     0.0000      5.8624 ]
 
 R *= 6.96787;
 
@@ -34,12 +34,6 @@ r=M*inverse(diag(S))*R.';
 G=2.*pi*N*inverse(R);
 G2=sum(G.^2,2);
 
-active=find(G2<G2max);
-lenAct=length(active);
-Gact=G(active,:);
-Gact2 = sum(Gact.^2,2);
-
-
 gbl_S=S;
 gbl_R=R;
 gbl_G=G;
@@ -47,6 +41,3 @@ gbl_G2=G2;
 gbl_r=r;
 gbl_dV=dV;
 gbl_Vcell=Vcell;
-gbl_Gact=Gact;
-gbl_Gact2=Gact2;
-gbl_active=active;
