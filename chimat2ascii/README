@@ -1,0 +1,7 @@
+copy epsinvomega.f90 to Epsilon directory
+compile via make epsilon-all
+run via ./epsinvomega.cplx.x
+
+produces output files:
+- fulleps.dat
+- gvecs.dat

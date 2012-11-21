@@ -1,0 +1,13 @@
+chimat
+WFN
+RHO
+0.0 0.1 0.1  !qvec
+0 0 0         !gvec1
+0 0 0         !gvec2
+38            !nfreq
+0.75          !dDeltaFreq
+0.5           !broadening
+0.1           !effective exciton freq.
+epsgpp.dat
+epsA.dat
+epsR.dat
