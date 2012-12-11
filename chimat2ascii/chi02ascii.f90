@@ -35,8 +35,7 @@
 program chi0toascii
 
 
-
-!-----------------------------
+! ----------------------------
 !   DECLARATIONS
 !-----------------------------
 
@@ -46,24 +45,24 @@ program chi0toascii
   integer :: i,j,k,iq,mq,ig,igp,itape,indx,jj,np
   real(DP) :: omega
   
-  character*256, parameter :: fninp = "chi0toascii.inp"
+  character*256, parameter :: fninp = "chi02ascii.inp"
   character*256, parameter :: filechi0 = "chi0_(0,0)_nfreq="
   character*256 :: fnchi,fnwfn,fnrho,fngpp,fnffr,fnffa
   real(DP) :: q(3)
   
-  !integer :: g(3),gp(3),gmgp(3),nband,ktot,ntranq
+  integer :: g(3),gp(3),gmgp(3),nband,qtot,ntranq
   
-  integer :: freq_dep,nFreq,ii,nq,ng,nmtx,kgrid(3),kmax(3)
+  integer :: freq_dep,nFreq,ii,nq,ng,nmtx,qgrid(3),qmax(3)
   real(DP) :: dDeltaFreq,dBrdning,ecuts,delta,qvec(3)
   real(DP), allocatable :: qpt(:,:)
   real(DP), allocatable :: dFreqGrid(:),ekin(:)
   integer, allocatable :: gvec(:,:)
   integer, allocatable :: isrtx(:)
   integer, allocatable :: isorti(:)
-  !SCALAR, allocatable :: eps(:)
+ 
   complex(DPC), allocatable :: dFreqBrd(:)
   complex(DPC), allocatable :: epsPP(:)
-  complex(DPC), allocatable :: epsR(:)
+  complex(DPC), allocatable :: chi0R(:)
   complex(DPC), allocatable :: epsA(:)
   
   real(DP) :: bdot(3,3),celvol,ebind
@@ -74,16 +73,13 @@ program chi0toascii
   real(DP) :: rho0
   SCALAR :: rhogmgp
   
-  ! real(DP) :: wp2,qg(3),qgp(3),qgqg,qgqgp,lambda,phi
-  ! SCALAR :: Omega2,wtilde2,epsggp,I_epsggp,eps_static,eps_dynamic
-  ! complex(DPC) :: wtilde2_temp
+ 
 
 
 
-
-!-----------------------------
-!   I/O HANDLING
-!-----------------------------
+!!-----------------------------
+!! initial  I/O HANDLING
+!!-----------------------------
 
   call open_file(unit=9,file='chimat.dat',form='formatted',status='replace')
   call open_file(unit=8,file='gvecs.dat',form='formatted',status='replace')
@@ -127,9 +123,9 @@ program chi0toascii
   
 
 
-!-----------------------------
-!   BODY
-!-----------------------------
+!!-----------------------------
+!!  BODY
+!!-----------------------------
 
 
   write(6,*)g(1)
@@ -142,7 +138,9 @@ program chi0toascii
   itape=12
   call open_file(unit=itape,file=trim(fnchi),form='unformatted',status='old')
 
+  ! Skipping one line
   read(itape)
+  ! Reading Frequency dependence and number of frequencies
   read(itape) freq_dep,ii
  
   write(6,*) 'Frequency dependence ', freq_dep
@@ -150,13 +148,15 @@ program chi0toascii
   if (freq_dep.eq.2) then
     nFreq=ii
     write(6,*) 'Number of Fequencies ', nFreq
-    SAFE_ALLOCATE(epsR, (nFreq))
+    SAFE_ALLOCATE(chi0R, (nFreq))
   endif
- 
-  read(itape) (kgrid(i),i=1,3)
+  
+  ! Reading q-grid 
+  read(itape) (qgrid(i),i=1,3)
   SAFE_ALLOCATE(dFreqGrid,(nFreq))
   SAFE_ALLOCATE(dFreqBrd,(nFreq))
  
+  ! If frequancy dependent -> reading frequency grid and broadenings
   if (freq_dep.eq.2) then
     read(itape) (dFreqGrid(i),i=1,nFreq),(dFreqBrd(i),i=1,nFreq)
     if (nFreq.gt.1) dDeltaFreq=dFreqGrid(2)-dFreqGrid(1)
@@ -166,42 +166,53 @@ program chi0toascii
       dFreqGrid(i)=dDeltaFreq*dble(i-1)
       dFreqBrd(i)=dBrdning
     enddo
+    ! Skipping one line
     read(itape)
   endif
  
+  ! Skipping one line
   read(itape)
+
+  ! Skipping one line
   read(itape)
+
+  ! Reading cutoff energy
   read(itape) ecuts
  
   write(6,*) 'Screened Coulomb cutoff', ecuts
 
+  ! Skipping one line
   read(itape) !nrk
-  read(itape) ng,ktot,kmax(1:3)
-  write(6,*) 'Number of G-vectors, Number of k points', ng,ktot
- 
+
+  ! Rading number of G-vectors, number of q-points
+  read(itape) ng,qtot,qmax(1:3)
+  write(6,*) 'Number of G-vectors, Number of k points', ng,qtot
+  
+  ! Going back one line 
   backspace(itape)
   
   SAFE_ALLOCATE(gvec,(3,ng))
   SAFE_ALLOCATE(ekin,(ng))
   SAFE_ALLOCATE(isrtx,(ng))
 
-  read(itape) ng,ktot,kmax(1:3),((gvec(jj,ig),jj=1,3),ig=1,ng)
+  ! Reading all the g-vectors
+  read(itape) ng,qtot,qmax(1:3),((gvec(jj,ig),jj=1,3),ig=1,ng)
   write(6,*) 'G1', gvec(1,1),gvec(2,1),gvec(3,1)
   write(6,*) 'G2', gvec(1,2),gvec(2,2),gvec(3,2)
 
-  !-----------------------------------
-  ! READING THE NUMBER OF Q-VECTORS
-  !-----------------------------------
+  ! Reading the number of q-vectors
   read(itape) nq
   write(6,*) 'Number of q vectors', nq
 
   do ii = 1,nq
 
+    ! Reading ????
      read(itape) ntranq
      write(6,*) 'ntranq ', ntranq
 
+     ! Reading number of martix elements, 
      read(itape) nmtx,np,(isrtx(jj),ekin(jj),jj=1,ng)
-     write(6,*) 'Size of epsilon ', nmtx
+     write(6,*) 'Size of chi0 ', nmtx
 
       !-----------------------------------
       ! WRITING G-VECTORS
@@ -221,10 +232,10 @@ program chi0toascii
       ! WRITING chi0(0,0)
       !-----------------------------------
 
-           if (j.eq.1) && (i.eq.1) then
+           if ((j.eq.1).and.(i.eq.1)) then
 
               !call open_file(unit=13,file=trim(filechi0),form='unformatted',status='replace') 
-              write(6,'GOTCHA!')
+              write(6,100) 'Chi0', chi0R(1), chi0R(2)
            
            endif
               
@@ -232,6 +243,7 @@ program chi0toascii
               write(9,100)chi0R(indx)
            enddo
         enddo
+
 #ifdef CPLX
         do i=1,nmtx
            read(itape)
@@ -263,7 +275,7 @@ program chi0toascii
 ! deallocate and finish
   
   SAFE_DEALLOCATE(epsPP)
-  SAFE_DEALLOCATE(epsR)
+  SAFE_DEALLOCATE(chi0R)
   SAFE_DEALLOCATE(epsA)
   SAFE_DEALLOCATE(dFreqGrid)
   SAFE_DEALLOCATE(dFreqBrd)
