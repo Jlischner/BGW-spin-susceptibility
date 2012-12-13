@@ -87,7 +87,20 @@ subroutine dmult( vec, mat_in, mat_out, nline, ncol)
 
   return
 end subroutine dmult
-!********************************************************************
+
+!***********************************************************
+! setup
+! 
+! This subroutine does all the preparations for reading
+! the G-vectors
+!
+! parameters: 
+! - inverseR --- inverse lattice tensor of dim(3,3) 
+! - S --- dim(3) vector of Fourier grid
+! - G --- dim(:,3) matrix of g-vectors
+! - G2 --- dim (:) vector of G^2 values 
+!
+!***********************************************************
 subroutine setup(inverseR,S,G,G2)
 
   implicit none
@@ -105,7 +118,7 @@ subroutine setup(inverseR,S,G,G2)
 
   lenS = S(1)*S(2)*S(3)
   pi = 2.*ACOS(0.0)
-  !**************allocate stuff***************************
+  !------------------allocate statements------------------------
   ALLOCATE( ms(lenS) , STAT=error)
   IF (error /= 0) THEN
      PRINT *, "could not allocate space for ms"
@@ -159,7 +172,7 @@ subroutine setup(inverseR,S,G,G2)
      PRINT *, "could not allocate space for N"
      STOP
   END IF
-  !**************done allocating******************
+  !-----------------done allocating-----------------
 
   DO i=1,lenS
      ms(i) = i-1
@@ -189,7 +202,7 @@ subroutine setup(inverseR,S,G,G2)
         n3(i) = 1
      ELSE
         n3(i) = 0
-     END IF
+     END I
 
   END DO
 
@@ -203,6 +216,18 @@ subroutine setup(inverseR,S,G,G2)
 
   return
 end subroutine setup
+
+!***********************************************************
+! getIxc
+! 
+! This subroutine forms a matrix that represents an LSDA
+! exchange and correlation interaction
+!
+! parameters: 
+! - lenS --- dimensions of the Fourier grid in G-space 
+!   multiplied e.g. lenS = dimX*dimY*dimZ
+! - Ixc --- resulting output matrix
+!
 !***********************************************************
 subroutine getIxc(lenS,Ixc)
   implicit none
@@ -213,16 +238,17 @@ subroutine getIxc(lenS,Ixc)
   integer :: error,ii
   real(DP) :: A,a1,b1,b2,b3,b4,pi
   real(DP), allocatable, dimension(:) :: n,rs,rrs,ac,expp
-  real(DP), allocatable, dimension(:), intent(out) :: Ixc
+  real(DP), dimension(lenS), intent(out) :: Ixc
+
   character(len=200), parameter :: infile = "cd.dat"
-  
+
   allocate( n(lenS) , stat=error)
-  allocate( Ixc(lenS) , stat=error)
+!  allocate( Ixc(lenS) , stat=error) - this was giving memory error
   allocate( rs(lenS) , stat=error)
   allocate( rrs(lenS) , stat=error)
   allocate( ac(lenS) , stat=error)
   allocate( expp(lenS) , stat=error)
-
+ 
   pi = 2.0 * acos(0.0)
   !# parameter for -ac from Perdew Wang paper
   !# last column of TABLE I (atomic units)
@@ -251,16 +277,57 @@ subroutine getIxc(lenS,Ixc)
   !# calculate 2nd derivative of exchange energy
   expp  = -3.0/4.0/pi/rs * (9.0*pi/4.0)**(1.0/3.0)
   expp  = 4.0/9.0 * expp
-  
-
 
   !# final result for I(n)
   Ixc = 2.0/n * (ac + expp)
   
   !# Rydberg: multiply by 2
   Ixc = 2.0 * Ixc
-  do ii = 1,lenS
-     print *,"expp",ii,Ixc(ii)
-  enddo
 
 end subroutine getIxc
+
+!***********************************************************
+! get_fftbox
+! 
+! This subroutine forms a vector that represents the index
+! that a particular G-vector has in the Fourier grid S
+!
+! parameters:
+!  input
+! - gkvectors --- dim(nmtx,3) array of g-vectors
+! - S --- dim(3) vector of the Fourier grid
+! - nmtx --- the length of gkvectors array (number of g-vectors)
+!  output
+! - indx --- resulting output vector of dim(nmtx)
+!
+!***********************************************************
+subroutine get_fftbox(gkvectors,S,nmtx,indx)
+  implicit none
+  integer, parameter :: DP = kind(1.0d0)
+  integer, parameter :: DPC = kind((1.0d0,1.0d0))
+  
+  integer, dimension(3),intent(in):: S
+  integer, intent(in) :: nmtx
+  real(DP), dimension( nmtx,3),intent(in) :: gkvectors
+  integer, dimension(nmtx),intent(out) :: indx
+  real(DP), allocatable,dimension(:,:) :: ivec
+  real(DP) :: isign
+  integer :: error,Ngk,ii,jj
+
+  allocate( ivec(nmtx,3) , stat=error)
+  ivec = gkvectors + 1
+  
+  do ii=1, nmtx
+     do jj=1,3
+  
+        isign = 0.0d0
+        if( ivec(ii,jj) .le. 0.0d0) isign = 1.0d0
+        ivec(ii,jj) = ivec(ii,jj) + real(S(jj)) * isign
+     enddo
+  enddo
+  
+  do ii=1,nmtx
+     indx(ii) = S(2)*S(1)*(int(ivec(ii,3))-1) + S(1)*(int(ivec(ii,2))-1) + int(ivec(ii,1))
+  enddo
+
+end subroutine get_fftbox
