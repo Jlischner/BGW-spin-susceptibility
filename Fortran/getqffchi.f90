@@ -15,12 +15,12 @@ program chispin
   integer, parameter :: DPC = kind((1.0d0,1.0d0))
 
   integer, dimension(3) :: S
-  integer :: lenS,error,Nq,ii,Nfreq,iq,ind1,ind2,nmtx
+  integer :: lenS, error, Nq, ii, Nfreq, iq, ind1, ind2, nmtx, ifreq, ncol
   integer, allocatable, dimension(:) :: nmtxdat,indx
 
   real(DP), dimension(3,3) :: R,inverseR
   real(DP), allocatable, dimension(:) :: G2,Ixc
-  real(DP), allocatable, dimension(:,:) :: G,chi0,gvecs,gvecsdat
+  real(DP), allocatable, dimension(:,:) :: G,chi0,gvecs,gvecsdat, chi0w, chi0f, epsmat
   real(DP) :: Vcell,dV, latt_const
 
   ! Fourier grid size
@@ -85,36 +85,92 @@ program chispin
      read(12,*) gvecsdat(ii,1),gvecsdat(ii,2),gvecsdat(ii,3)
   enddo
   close(12)
-  
+
+  ! allocate Ixc 
   allocate( Ixc(lenS) , stat = error)
+  ! ---------------- call getIxc ---------------
   call getIxc(lenS,Ixc)
+  ! --------------------------------------------
    
+  !--------------------------------------------
+  ! LOOP THROUGH THE q-vectors
+  !--------------------------------------------
   do iq = 1,Nq
      
      print *, "doing qpoint #", iq, "out of total", Nq
-
+     
+     ! get the number of matrix elements for a current q-point iq
      nmtx = nmtxdat(iq)
 
-     ! Check if the ind1 is zero and assign it
+     ! Check if the ind1 is zero and assign it and ind2
+     !---
      if( iq-1 .eq. 0) then
         ind1 = 0
      else
         ind1 = sum(nmtxdat(1:iq-1))
      endif
+     
      ind2 = sum(nmtxdat(1:iq))
+     !---
      
-     print *, "ind",ind1, ind2
-     
+     ! allocating gvecs and indx
      allocate(gvecs(nmtx,3), stat=error)
      allocate(indx(nmtx), stat=error)
+
+     ! assigning values to gvecs
      gvecs = gvecsdat( ind1+1:ind2, 1:3)
      
-     print *,"calling fftbox"
+     !--------- call fftbox------------
      call get_fftbox(gvecs,S,nmtx,indx)
-  
-     do ii = 1,size(gvecs,1)
-        !print *, "indx", ii, indx(ii)
+     !--------------------------------
+     
+     ! check if the ind1 is zero and assign it and ind2 again for chi0
+     !---
+     if( iq-1 .eq. 0) then
+        ind1 = 0
+     else
+        ind1 = sum(nmtxdat(1:iq-1)**2)
+     endif
+     
+     ind2 = sum(nmtxdat(1:iq)**2)
+     !---
+     
+     ! get the part of chi0 that corresponds to the current iq
+     ! and reshape in into a matrix
+     chi0w = chi0( ind1*Nfreq + 1 : ind2*Nfreq, : )
+     chi0w = reshape (chi0w, (/ Nfreq, nmtx**2 /))
+     
+     !-------------------------------------------
+     ! LOOP THROUGHT THE FREQUENCIES
+     !-------------------------------------------
+     do ifreq = 1,Nfreq
+        
+        print *, "doing frequency #", ifreq, "out of total", Nfreq
+        chi0f = reshape (chi0w(ifreq,:), (/ nmtx,nmtx/))
+        
+        ! allocate epsmat TODO: nullify it also
+        allocate(epsmat (nmtx,nmtx), stat=error) 
+        
+        !-------------------------------------------
+        ! LOOP THROUGHT THE FREQUENCIES
+        !-------------------------------------------
+        do ncol = 1,nmtx
+           
+           print *, "doing column #", ncol, "out of total", nmtx
+         
+           !do ii = 1,size(chi0w,1)
+           !   print *, "chi0f", ii, chi0f(ii,1)
+           !enddo
+        
+        enddo
+           
+        ! deallocate epsmat
+        deallocate(epsmat, stat=error) 
      enddo
+
+     ! deallocating gvecs and indx
+     deallocate(gvecs, stat=error)
+     deallocate(indx, stat=error)
 
   enddo
   

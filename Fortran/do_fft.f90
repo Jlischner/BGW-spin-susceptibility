@@ -202,7 +202,7 @@ subroutine setup(inverseR,S,G,G2)
         n3(i) = 1
      ELSE
         n3(i) = 0
-     END I
+     END IF
 
   END DO
 
@@ -317,6 +317,7 @@ subroutine get_fftbox(gkvectors,S,nmtx,indx)
   allocate( ivec(nmtx,3) , stat=error)
   ivec = gkvectors + 1
   
+  ! TODO: rewrite this loop using "where" later
   do ii=1, nmtx
      do jj=1,3
   
