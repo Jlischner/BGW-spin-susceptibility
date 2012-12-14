@@ -20,7 +20,10 @@ program chispin
 
   real(DP), dimension(3,3) :: R,inverseR
   real(DP), allocatable, dimension(:) :: G2,Ixc
-  real(DP), allocatable, dimension(:,:) :: G,chi0,gvecs,gvecsdat, chi0w, chi0f, epsmat
+  real(DP), allocatable, dimension(:,:) :: G,chi0,gvecs,gvecsdat, chi0w, chi0w_real, chi0w_cmpx, chi0f_real, chi0f_cmpx, Identity
+  complex(DPC), allocatable, dimension(:) :: row_chi0
+  complex(DPC), allocatable, dimension(:,:) :: epsmat, chi
+ 
   real(DP) :: Vcell,dV, latt_const
 
   ! Fourier grid size
@@ -136,33 +139,82 @@ program chispin
      !---
      
      ! get the part of chi0 that corresponds to the current iq
-     ! and reshape in into a matrix
+     ! and reshape it into a matrix
+     ! TODO: understand how the complex algebra works and get rid of 2 arrays or real am cmpx
      chi0w = chi0( ind1*Nfreq + 1 : ind2*Nfreq, : )
-     chi0w = reshape (chi0w, (/ Nfreq, nmtx**2 /))
-     
+     chi0w_real = reshape (chi0w(:,1), (/ Nfreq, nmtx**2 /))
+     chi0w_cmpx = reshape (chi0w(:,2), (/ Nfreq, nmtx**2 /))
+
      !-------------------------------------------
-     ! LOOP THROUGHT THE FREQUENCIES
+     ! LOOP THROUGH THE FREQUENCIES
      !-------------------------------------------
      do ifreq = 1,Nfreq
         
         print *, "doing frequency #", ifreq, "out of total", Nfreq
-        chi0f = reshape (chi0w(ifreq,:), (/ nmtx,nmtx/))
+        
+        ! reshaping the chi0w array
+        chi0f_real = reshape (chi0w_real(ifreq,:), (/ nmtx,nmtx/))
+        chi0f_cmpx = reshape (chi0w_cmpx(ifreq,:), (/ nmtx,nmtx/))
         
         ! allocate epsmat TODO: nullify it also
-        allocate(epsmat (nmtx,nmtx), stat=error) 
+        allocate(epsmat (nmtx,nmtx), stat=error)
+        epsmat = 0d0
         
         !-------------------------------------------
-        ! LOOP THROUGHT THE FREQUENCIES
+        ! LOOP THROUGH THE G-VECTORS
         !-------------------------------------------
         do ncol = 1,nmtx
            
            print *, "doing column #", ncol, "out of total", nmtx
-         
-           !do ii = 1,size(chi0w,1)
-           !   print *, "chi0f", ii, chi0f(ii,1)
+           
+           ! allocate row_chi0 and nullify it also
+           allocate(row_chi0 (lenS), stat=error) 
+           row_chi0 = 0d0
+
+           row_chi0(indx) = cmplx ( chi0f_real(:,ncol) , chi0f_cmpx(:,ncol) )
+           
+           !-------------- Calling cJ ----------------------
+           print *, "calling cJ"
+           call cJ( row_chi0, S)
+           print *, "cJ done"
+           !------------------------------------------------
+           
+           ! multiply by the interaction
+           row_chi0 = row_chi0 * Ixc
+           
+           !-------------- Calling cI ----------------------
+           print *, "calling cI"
+           call cI( row_chi0, S)
+           print *, "cI done"
+           !------------------------------------------------
+
+           !
+           epsmat( : ,ncol) = row_chi0(indx)
+
+           !do ii = 1,size(epsmat,1)
+           !   print *, "epsmat", epsmat(ii, ncol)
            !enddo
-        
+           
+           ! deallocate row_chi0
+           deallocate(row_chi0, stat=error)
+           
         enddo
+      
+        print *, "DONE! column #", ncol, "out of total", nmtx    
+
+        ! Create identity matrix
+        allocate(Identity(nmtx,nmtx), stat=error)
+        Identity = 0.0
+        do ii = 1, nmtx; Identity(ii,ii) = 1.0; enddo
+
+        print *, "Identity matrix DONE!"
+
+        ! get the epsilon matrix using identity matrix
+        epsmat = Identity - epsmat
+        
+        ! invert epsilon and multiply by chi0
+        call findinv(epsmat, chi, nmtx, error)
+        chi = chi *  cmplx ( chi0f_real , chi0f_cmpx )
            
         ! deallocate epsmat
         deallocate(epsmat, stat=error) 
