@@ -240,7 +240,7 @@ subroutine getIxc(lenS,Ixc)
   real(DP), allocatable, dimension(:) :: n,rs,rrs,ac,expp
   real(DP), dimension(lenS), intent(out) :: Ixc
 
-  character(len=200), parameter :: infile = "cd.dat"
+  character(len=200), parameter :: infile = "data/cd.dat"
 
   allocate( n(lenS) , stat=error)
 !  allocate( Ixc(lenS) , stat=error) - this was giving memory error

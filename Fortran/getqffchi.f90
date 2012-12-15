@@ -8,35 +8,32 @@
 !
 ! Authors: TBZ, JJL
 !
+! Last updated: Dec 2012
 !================================================================
 
 program chispin
-
-
-!--------------------------------------------------------------
-!     VARIABLES DECLARATIONS
-!--------------------------------------------------------------
+  !--------------------------------------------------------------
+  !     VARIABLES DECLARATIONS
+  !--------------------------------------------------------------
   implicit none
   integer, parameter :: DP = kind(1.0d0)
   integer, parameter :: DPC = kind((1.0d0,1.0d0))
 
   integer, dimension(3) :: S
-  integer :: lenS, error, Nq, ii, jj, Nfreq, iq, ind1, ind2, nmtx, ifreq, ncol
+  integer :: lenS, error, Nq, ii, jj, outunit, Nfreq, iq, ind1, ind2, nmtx, ifreq, ncol
   integer, allocatable, dimension(:) :: nmtxdat,indx
 
-  real(DP), dimension(3,3) :: R,inverseR, a, b
+  real(DP), dimension(3,3) :: R,inverseR
   real(DP), allocatable, dimension(:) :: G2,Ixc
-  real(DP), allocatable, dimension(:,:) :: G,chi0,gvecs,gvecsdat, chi0w, chi0w_real, chi0w_cmpx, chi0f_real, chi0f_cmpx, Identity
-  complex(DPC), allocatable, dimension(:) :: row_chi0
-  complex(DPC), allocatable, dimension(:,:) :: epsmat, chi
+  real(DP), allocatable, dimension(:,:) :: G,gvecs,gvecsdat, Identity
+  complex(DPC), allocatable, dimension(:) :: row_chi0, chi0
+  complex(DPC), allocatable, dimension(:,:) :: epsmat, chi, chi0w, chi0f
  
   real(DP) :: Vcell,dV, latt_const
-
-
-!--------------------------------------------------------------
-!     VARIABLES INITIALIZATION
-!--------------------------------------------------------------
-  
+  real(DP) :: a, b ! local variables used to read chi0
+  !--------------------------------------------------------------
+  !     VARIABLES INITIALIZATION
+  !--------------------------------------------------------------
   ! Fourier grid size
   S(1) = 60
   S(2) = 60
@@ -64,77 +61,67 @@ program chispin
 
   ! number of frequencies
   Nfreq = 18
+ !--------------------------------------------------------------
+ !     I/O initialization
+ !--------------------------------------------------------------
+  ! Output file for chi
+  outunit = 99
+  open(unit=outunit,file='chi.dat',form='formatted',status='replace')
 
-
-!--------------------------------------------------------------
-!     ALLOCATE ARRAYS AND READ THE DATAFILES
-!--------------------------------------------------------------
-
-  open(unit=99,file='chi.dat',form='formatted',status='replace')
-
-  ! sizes of chi0 matrices (number of Gvecs)
+  ! allocate sizes of chi0 matrices (number of Gvecs)
   allocate( nmtxdat(Nq), stat = error)
-
-  ! get reciprocal lattice vectors (G) and their length squared (G2)
-  allocate( G(lenS,3) , stat=error)
-  allocate( G2(lenS)  , stat=error)
-  
-  !----------------- call setup ----------------
-  call setup(inverseR,S,G,G2)
-  !---------------------------------------------
-  
-  open(10,file="nmtx.dat",form='formatted')
+  open(10,file="data/nmtx.dat",form='formatted')
   do ii=1,Nq
      read(10,*) nmtxdat(ii)
   enddo
   close(10)
 
-  ! allocate chi0
-  allocate( chi0(Nfreq*sum(nmtxdat**2),2), stat=error)
-  print *, "size of chi0", Nfreq*sum(nmtxdat**2)
-  
+  ! allocate arrays of reciprocal lattice vectors (G) and their length squared (G2)
+  allocate( G(lenS,3) , stat=error)
+  allocate( G2(lenS)  , stat=error)
+  ! allocate space for chi0
+  allocate( chi0(Nfreq*sum(nmtxdat**2)), stat=error)
   ! allocate space for gvecs
   allocate( gvecsdat(sum(nmtxdat**2),3) , stat=error)
-
-  ! open chi0 file
-  open(11,file="chimat.dat",form='formatted')
-  do ii=1,Nfreq*sum(nmtxdat**2)
-     read(11,*) chi0(ii,1),chi0(ii,2)
-     !print *, "chi0", ii,chi0(ii,1), chi0(ii,2)
+  ! allocate Ixc 
+  allocate( Ixc(lenS) , stat = error)
+  
+  !----------------- call setup ----------------
+  call setup(inverseR,S,G,G2)
+ !--------------------------------------------------------------
+ !     READ THE DATAFILES
+ !--------------------------------------------------------------
+  print *, "size of chi0", Nfreq*sum(nmtxdat**2), size(chi0)
+  
+  open(11,file="data/chimat.dat",form='formatted')
+  do ii = 1, Nfreq*sum(nmtxdat**2)
+     read(11,*) a, b
+     chi0(ii) = cmplx(a, b)
+     !print *, "chi0", ii, chi0(ii)
   enddo
   close(11)
 
-  open(12,file="gvecs.dat",form='formatted')
+  open(12,file="data/gvecs.dat",form='formatted')
   do ii=1,sum(nmtxdat)
      read(12,*) gvecsdat(ii,1),gvecsdat(ii,2),gvecsdat(ii,3)
   enddo
   close(12)
 
-  ! allocate Ixc 
-  allocate( Ixc(lenS) , stat = error)
-
   ! ---------------- call getIxc ---------------
   call getIxc(lenS,Ixc)
-  ! --------------------------------------------
+
+  !--------------------------------------------------------------
+  !--------------------------------------------------------------
+  !     MAIN BODY OF THE PROGRAM
+  !--------------------------------------------------------------
+  !--------------------------------------------------------------
   
-
-!--------------------------------------------------------------
-!
-!     MAIN BODY OF THE PROGRAM
-!
-!--------------------------------------------------------------
-
   !---------------------------------------------
   ! LOOP THROUGH THE q-vectors
   !---------------------------------------------
   do iq = 1,Nq
      
      print *, "doing qpoint #", iq, "out of total", Nq
-
-     !do ii=1,Nfreq*sum(nmtxdat**2)
-     !    read(11,*) a, b
-     !    chi0(ii
-     !enddo
 
      ! get the number of matrix elements for a current q-point iq
      nmtx = nmtxdat(iq)
@@ -148,18 +135,33 @@ program chispin
      
      ind2 = sum(nmtxdat(1:iq))
      
-     ! allocating gvecs and indx
-     print *, "allocating gvecs and indx"
+  !-----------------------------------------------
+  ! Allocate arrays
+  !-----------------------------------------------
+     print *, "allocating arrays"
+
      allocate(gvecs(nmtx,3), stat=error)
      allocate(indx(nmtx), stat=error)
+     ! allocate chi0w and individual arrays for real and imag parts     
+     allocate( chi0w(Nfreq,nmtx**2), stat=error)
+     ! allocate chi0f individual arrays for real and imag parts     
+     allocate( chi0f(nmtx,nmtx), stat=error)
+     ! allocate epsmat, chi, Identity
+     allocate(epsmat (nmtx,nmtx), stat=error)
+     allocate(chi (nmtx,nmtx), stat=error)
+     ! Create identity matrix
+     allocate(Identity(nmtx,nmtx), stat=error)
+     Identity = 0.0
+     do ii = 1, nmtx; Identity(ii,ii) = 1.0; enddo
+     ! allocate row_chi0
+     allocate(row_chi0 (lenS), stat=error) 
 
      ! assigning values to gvecs
      gvecs = gvecsdat( ind1+1:ind2, 1:3)
      
-     !--------- call fftbox------------
+     !--------- call fftbox----------------------
      print *, "calling fftbox"
      call get_fftbox(gvecs,S,nmtx,indx)
-     !--------------------------------
      
      ! check if the ind1 is zero and assign it and ind2 again for chi0
      if( iq-1 .eq. 0) then
@@ -169,18 +171,11 @@ program chispin
      endif
      ind2 = sum(nmtxdat(1:iq)**2)
 
-     ! allocate chi0w and individual arrays for real and imag parts     
-     allocate( chi0w(Nfreq*nmtx**2,2), stat=error)
-     allocate( chi0w_real(Nfreq*nmtx**2,1), stat=error)
-     allocate( chi0w_cmpx(Nfreq*nmtx**2,1), stat=error)
 
      ! get the part of chi0 that corresponds to the current iq
      ! and reshape it into a matrix
-     ! TODO: understand how the complex algebra works and get rid of 2 arrays or real am cmpx
-     print *, "reshaping chi0 ", "ind1 =", ind1, "Nfreq=", Nfreq, "ind2=", ind2
-     chi0w = chi0( ind1*Nfreq + 1 : ind2*Nfreq, : )
-     chi0w_real = reshape (chi0w(:,1), (/ Nfreq, nmtx**2 /))
-     chi0w_cmpx = reshape (chi0w(:,2), (/ Nfreq, nmtx**2 /))
+!     print *, "reshaping chi0 ", "ind1 =", ind1, "Nfreq=", Nfreq, "ind2=", ind2
+     chi0w = reshape (chi0( ind1*Nfreq + 1 : ind2*Nfreq), (/ Nfreq, nmtx**2 /) )
 
      !-------------------------------------------
      ! LOOP THROUGH THE FREQUENCIES
@@ -188,108 +183,114 @@ program chispin
      do ifreq = 1,Nfreq
         
         print *, "doing frequency #", ifreq, "out of total", Nfreq
-        print *, "reshaping the arrays chi0w. nmtx= ", nmtx
-        ! allocate chi0f individual arrays for real and imag parts     
-        allocate( chi0f_real(nmtx,nmtx), stat=error)
-        print *, "reshaping the arrays chi0w1"
-        allocate( chi0f_cmpx(nmtx,nmtx), stat=error)
-
-        print *, "reshaping the arrays chi0w2"
 
         ! reshaping the chi0w array
-        chi0f_real = reshape (chi0w_real(ifreq,:), (/ nmtx,nmtx/))
-        chi0f_cmpx = reshape (chi0w_cmpx(ifreq,:), (/ nmtx,nmtx/))
+        chi0f = reshape (chi0w(ifreq,:), (/ nmtx,nmtx/))
         
-        ! allocate epsmat, chi and nullify also
-        allocate(epsmat (nmtx,nmtx), stat=error)
         epsmat = 0d0
-        allocate(chi (nmtx,nmtx), stat=error)
         chi = 0d0
         
-        !-------------------------------------------
+        !----------------------------------------
         ! LOOP THROUGH THE G-VECTORS
-        !-------------------------------------------
+        !----------------------------------------
         do ncol = 1,nmtx
            
-           print *, "doing column #", ncol, "out of total", nmtx
+           if ( mod(ncol,50).eq.0) then
+             print *, "doing column #", ncol, "out of total", nmtx
+           endif
            
-           ! allocate row_chi0 and nullify it also
-           allocate(row_chi0 (lenS), stat=error) 
            row_chi0 = 0d0
 
-           row_chi0(indx) = cmplx ( chi0f_real(:,ncol) , chi0f_cmpx(:,ncol) )
+           row_chi0(indx) = chi0f(:,ncol)
            
-           !-------------- Calling cJ ----------------------
-           print *, "calling cJ"
+           !-------------- Calling cJ -----------
+  !         print *, "calling cJ"
            call cJ( row_chi0, S)
-           print *, "cJ done"
-           !------------------------------------------------
+  !         print *, "cJ done"
            
            ! multiply by the interaction
            row_chi0 = row_chi0 * Ixc
            
-           !-------------- Calling cI ----------------------
-           print *, "calling cI"
+           !-------------- Calling cI -----------
+ !          print *, "calling cI"
            call cI( row_chi0, S)
-           print *, "cI done"
-           !------------------------------------------------
+!           print *, "cI done"
 
-           !
+           ! init epsilon
            epsmat( : ,ncol) = row_chi0(indx)
-         
-           ! deallocate row_chi0
-           deallocate(row_chi0, stat=error)
+
+           if ( mod(ncol,50).eq.0) then
+             print *, "DONE! column #", ncol, "out of total", nmtx    
+           endif
            
         enddo ! loop over g-vectors
-      
-        print *, "DONE! column #", ncol, "out of total", nmtx    
-
-        ! Create identity matrix
-        allocate(Identity(nmtx,nmtx), stat=error)
-        Identity = 0.0
-        do ii = 1, nmtx; Identity(ii,ii) = 1.0; enddo
-
-        print *, "Identity matrix DONE!"
 
         ! get the epsilon matrix using identity matrix
         epsmat = Identity - epsmat
         
-        ! invert epsilon and multiply by chi0
-        !----------------- Calling findinv ------------
+        ! invert epsilon
+        !-------------- Calling invert -----------
         call invert(epsmat, chi, nmtx, error)
-        !----------------------------------------------
 
         print *, "epsilon matrix inverse DONE!"
 
-        chi = chi *  cmplx ( chi0f_real , chi0f_cmpx )
+        ! multiply by chi0
+        chi = chi *  chi0f
         
-        do ii = 1,size(chi,1)
-           write(99,*) "Chi0 for ifreq # %d", ifreq, "\n \n"
-           write(99,100) (chi(ii,jj), jj=1,nmtx)
-        enddo
+        ! write output into file
+        write(unit=outunit, fmt="(A, I10, A, I10)", iostat=error, advance='YES') "chi for iq # ", iq, " and ifreq # ", ifreq 
+        do ii=1, nmtx
+          do jj=1,nmtx
+            write(unit=outunit, fmt="(2F25.15)", iostat=error, advance='YES') dble(chi(ii,jj)), aimag(chi(ii,jj))
+            if ( error /= 0 ) stop "Write error in file unit ounit"
+          enddo
+        enddo   
 
-        ! deallocate epsmat, chi
-        deallocate(epsmat, stat=error) 
-        deallocate(chi, stat=error) 
-
-        ! deallocate chi0f individual arrays for real and imag parts     
-        deallocate( chi0f_real, stat=error)
-        deallocate( chi0f_cmpx, stat=error)
+        print *, "DONE! frequency #", ifreq, "out of total", Nfreq    
 
      enddo ! loop over frequencies
 
+  !-----------------------------------------------
+  ! Deallocate arrays
+  !-----------------------------------------------
+
+     ! deallocate row_chi0
+     deallocate(row_chi0, stat=error)
+
+     ! deallocate epsmat, chi
+     deallocate(epsmat, stat=error) 
+     deallocate(chi, stat=error)
+     deallocate(Identity, stat=error)
+     ! deallocate chi0f individual arrays for real and imag parts     
+     deallocate(chi0f, stat=error)
      ! deallocate chi0w and individual arrays for real and imag parts     
-     deallocate( chi0w, stat=error)
-     deallocate( chi0w_real, stat=error)
-     deallocate( chi0w_cmpx, stat=error)
+     deallocate(chi0w, stat=error)
  
      ! deallocating gvecs and indx
      deallocate(gvecs, stat=error)
      deallocate(indx, stat=error)
 
+     print *, "DONE! q-vector #", iq, "out of total", Nq    
+
   enddo ! loop over q-vectors
   
-100 format(3f25.15)
-  
-close(99)
+  !-----------------------------------------------
+  ! Deallocate preliminary arrays
+  !-----------------------------------------------
+
+  ! deallocate sizes of chi0 matrices (number of Gvecs)
+  deallocate( nmtxdat, stat = error)
+  ! deallocate arrays of reciprocal lattice vectors (G) and their length squared (G2)
+  deallocate( G, stat=error)
+  deallocate( G2, stat=error)
+  ! deallocate space for chi0
+  deallocate( chi0, stat=error)
+  ! deallocate space for gvecs
+  deallocate( gvecsdat, stat=error)
+  ! deallocatede Ixc 
+  deallocate( Ixc, stat = error)
+    
+  ! close the output file
+  close(outunit)
+
 end program chispin
