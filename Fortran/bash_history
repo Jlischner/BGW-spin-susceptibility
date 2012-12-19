@@ -1,0 +1,500 @@
+   57  ./a.out 
+   58  gfortran getqffchi.f90 do_fft.f90 invMat.f90 -lfftw
+   59  gfortran getqffchi.f90 do_fft.f90 invMat.f90 -lfftw
+   60  ./a.out 
+   61  ssh bagheera
+   62  exit
+   63  hopper
+   64  ssh tigger
+   65  cd 
+   66  cd Dropbox/
+   67  l
+   68  cd Research/
+   69  l
+   70  cd Code/
+   71  l
+   72  cd ..
+   73  l
+   74  cd Shared/
+   75  l
+   76  cd SpinFluctuations/Code/
+   77  l
+   78  cd BGW-spin-susceptibility/
+   79  l
+   80  q
+   81  l
+   82  cd Fortran/
+   83  l
+   84  gfortran getqffchi.f90 do_fft.f90 -lfftw
+   85  gfortran getqffchi.f90 do_fft.f90 -lfftw
+   86  l
+   87  ./a.out 
+   88  e getqffchi.f90 
+   89  e getqffchi.f90 -nw
+   90  l
+   91  ./a.out 
+   92  e getqffchi.f90 -nw
+   93  l
+   94  wc cd.dat 
+   95  e getqffchi.f90 
+   96  e getqffchi.f90 -nw
+   97  cp ~/cd.dat .
+   98  wc cd.dat 
+   99  e getqffchi.f90 -nw
+  100  l
+  101  e ../chimat2ascii/chi02ascii.f90 -nw
+  102  e getqffchi.f90 -nw
+  103  e ../chimat2ascii/chi02ascii.f90 -nw
+  104  git pull
+  105  e ../chimat2ascii/chi02ascii.f90 -nw
+  106  ls
+  107  emacs getqffchi.f90 -nw
+  108  emacs getqffchi.f90 -nw
+  109  emacs getqffchi.f90 -nw
+  110  emacs getqffchi.f90 -nw
+  111  l
+  112  l
+  113  cd ..
+  114  l
+  115  cd ..
+  116  l
+  117  cd
+  118  cd ls
+  119  ls
+  120  cd codes/hacks/sfpredictions/
+  121  l
+  122  git pull
+  123  l
+  124  cd src/
+  125  l
+  126  s
+  127  s pip-delete-this-directory.txt 
+  128  cd tables/
+  129  L
+  130  l
+  131  cd .
+  132  l
+  133  l
+  134  cd ..
+  135  l
+  136  cd ..
+  137  l
+  138  s README 
+  139  s README 
+  140  l
+  141  s jam.py 
+  142  s fetch.py 
+  143  s update.py 
+  144  s update.py 
+  145  l
+  146  cd server/
+  147  l
+  148  cd jamion/
+  149  l
+  150  cd jam
+  151  l
+  152  cd ..
+  153  l
+  154  cd .
+  155  cd ..
+  156  l
+  157  cd ..
+  158  l
+  159  cd 
+  160  cd bckp/hopper/FeSe/chi_matlab/
+  161  s getqffchi0.m
+  162  cd ..
+  163  l
+  164  cd ..
+  165  l
+  166  cd ..
+  167  l
+  168  cd ..
+  169  l
+  170  cd codes/
+  171  l
+  172  cd ..
+  173  cd Dropbox/
+  174  l
+  175  cd Research/Shared/SpinFluctuations/
+  176  l
+  177  cd Code/
+  178  l
+  179  git status
+  180  cd BGW-spin-susceptibility/
+  181  git status
+  182  l
+  183  cd chimat2ascii/
+  184  l
+  185  s epsinvomega.
+  186  s epsinvomega.f90 
+  187  su guru
+  188  cd /opt
+  189  ls
+  190  sudo ls
+  191  su guru
+  192  l
+  193  cd /usr/lib/Sublime\ Text\ 2/Pristine\ Packages/
+  194  l
+  195  l
+  196  cd ..
+  197  l
+  198  cd P
+  199  cd Pristine\ Packages/
+  200  l
+  201  s Matlab.sublime-package 
+  202  s Matlab.sublime-package 
+  203  l
+  204  cd ..
+  205  l
+  206  cd ..
+  207  l
+  208  ls Sublime\ Text\ 2/
+  209  ls
+  210  cd Sublime\ Text\ 2/
+  211  s
+  212  cd
+  213  cd Dropbox/Research/Shared/SpinFluctuations/Code/BGW-spin-susceptibility/chimat2ascii/epsinvomega.f90 
+  214  cd Dropbox/Research/Shared/SpinFluctuations/Code/BGW-spin-susceptibility/chimat2ascii/
+  215  s epsinvomega.f90 
+  216  s epsinvomega.f90 
+  217  s epsinvomega.f90 
+  218  s epsinvomega.f90 
+  219  s epsinvomega.f90 
+  220  s epsinvomega.f90 
+  221  s ~/.config/sublime-text-2/Packages/
+  222  s ~/.config/sublime-text-2/Packages/
+  223  s ~/.config/sublime-text-2/Packages/
+  224  l
+  225  l
+  226  cp epsinvomega.f90 chi02ascii.f90
+  227  git add .
+  228  git commit -m "changed epsinvomega: cleaned and renamed"
+  229  git push
+  230  cd
+  231  cd bckp/mako/
+  232  l
+  233  cd ELPH
+  234  l
+  235  cd FeSe
+  236  l
+  237  s scf.in_KFeSe_ph
+  238  l
+  239  cd FS/
+  240  l
+  241  s scf.in
+  242  cd
+  243  cd codes/BGW/
+  244  s
+  245  s
+  246  s .
+  247  su jlischner
+  248  su jlischner
+  249  ssh jlischner@hopper.nersc.gov
+  250  su jlischner
+  251  su jlischner
+  252  su jlischner
+  253  l
+  254  cd Dropbox/Research/Shared/SpinFluctuations/Code/BGW-spin-susceptibility/Fortran/
+  255  l
+  256  mkdir lapack
+  257  rm *~
+  258  l
+  259  mv *.f lapack/
+  260  l
+  261  mv f07awfe.d lapack/
+  262  l
+  263  rm invMat.f90 
+  264  git add . -A
+  265  git commit -m "chi martix inversion added, Seg Fault stil present"
+  266  git push
+  267  l
+  268  mkdir data
+  269  mv *.dat data/
+  270  l
+  271  s getqffchi.f90 
+  272  gdb gfortran getqffchi.f90 do_fft.f90 invMat.f90 -lfftw
+  273  gfortran getqffchi.f90 do_fft.f90 invMat.f90 -lfftw
+  274  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90.f90 -lfftw
+  275  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw
+  276  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw
+  277  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw
+  278  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw
+  279  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw
+  280  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  281  s inv_mat.f90 
+  282  s inv_mat.f90 
+  283  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  284  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  285  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  286  ./a.out 
+  287  l
+  288  rm nmtx.dat 
+  289  ./a.out 
+  290  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  291  ./a.out 
+  292  s do_fft.f90 
+  293  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  294  ./a.out 
+  295  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  296  ./a.out 
+  297  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  298  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  299  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  300  ./a.out 
+  301  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  302  ./a.out 
+  303  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  304  ./a.out 
+  305  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  306  ./a.out 
+  307  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  308  ./a.out 
+  309  cd ..
+  310  l
+  311  cd Fortran/
+  312  l
+  313  cd data/
+  314  l
+  315  rm chimat.dat 
+  316  rm chi.dat 
+  317  l
+  318  cp \$HOME/chimat.dat .
+  319  l
+  320  ls
+  321  cp \$HOME/chimat.dat .
+  322  ls $HOME
+  323  cp $HOME/chimat.dat .
+  324  l
+  325  wc chimat.dat 
+  326  wc cd.dat 
+  327  l
+  328  cd ..
+  329  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  330  ./a.out 
+  331  wc data/chimat.dat 
+  332  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  333  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  334  ./a.out 
+  335  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  336  ./a.out 
+  337  l
+  338  ls data/
+  339  cd data/
+  340  l
+  341  rm chi.dat 
+  342  cd ..
+  343  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  344  ./a.out 
+  345  cd data/
+  346  l
+  347  wc -l chimat.dat 
+  348  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  349  cd ..
+  350  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  351  ./a.out 
+  352  l
+  353  wc chimat.dat 
+  354  rm *.dat
+  355  l
+  356  cd data/
+  357  l
+  358  cd ..
+  359  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  360  ./a.out 
+  361  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  362  ./a.out 
+  363  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  364  ./a.out 
+  365  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  366  ./a.out 
+  367  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  368  ./a.out 
+  369  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  370  ./a.out 
+  371  e data/chimat.dat -nw
+  372  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  373  ./a.out 
+  374  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  375  ./a.out 
+  376  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  377  ./a.out 
+  378  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  379  ./a.out 
+  380  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  381  ./a.out 
+  382  e getqffchi.f90 -nw
+  383  l
+  384  cd data/
+  385  l
+  386  less nmtx.dat 
+  387  cd ..
+  388  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  389  gdb ./a.out 
+  390  less data/chimat.dat 
+  391  less data/chimat.dat 
+  392  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  393  gdb ./a.out 
+  394  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  395  gdb ./a.out 
+  396  cp $HOME/chimat.dat data/
+  397  l
+  398  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  399  ./a.out 
+  400  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  401  ./a.out 
+  402  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  403  ./a.out 
+  404  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  405  ./a.out 
+  406  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  407  ./a.out 
+  408  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  409  ./a.out 
+  410  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  411  ./a.out 
+  412  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  413  ./a.out 
+  414  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  415  ./a.out 
+  416  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  417  ./a.out 
+  418  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  419  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  420  ./a.out 
+  421  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  422  ./a.out 
+  423  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  424  ./a.out 
+  425  sudo reboot
+  426  su guru
+  427  ssh bagheera
+  428  ssh bagheera
+  429  ls
+  430  cd Dropbox/Research/Shared/SpinFluctuations/Code/BGW-spin-susceptibility/Fortran/
+  431  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  432  ./a.out 
+  433  e getqffchi.f90 -nw
+  434  e getqffchi.f90 -nw
+  435  e data/chimat.dat -nw
+  436  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  437  ./a.out 
+  438  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  439  ./a.out 
+  440  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  441  ./a.out 
+  442  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  443  ./a.out 
+  444  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  445  ./a.out 
+  446  e getqffchi.f90 -nw
+  447  dropbox
+  448  dropbox status
+  449  dropbox start
+  450  dropbox status
+  451  dropbox status
+  452  dropbox status
+  453  dropbox status
+  454  dropbox status
+  455  dropbox status
+  456  dropbox status
+  457  dropbox status
+  458  dropbox status
+  459  dropbox status
+  460  dropbox status -f
+  461  dropbox status 
+  462  dropbox status 
+  463  e getqffchi.f90 -nw
+  464  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  465  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  466  ./a.out 
+  467  e getqffchi.f90 -nw
+  468  gfortran readin.f90 -lfftw -llapack
+  469  gfortran readin.f90 -lfftw -llapack
+  470  gfortran readin.f90 -lfftw -llapack
+  471  ./a.out 
+  472  gfortran readin.f90 -lfftw -llapack -fbounds-check
+  473  ./a.out 
+  474  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  475  ./a.out 
+  476  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  477  ./a.out 
+  478  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  479  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  480  ./a.out 
+  481  ./a.out 
+  482  cd data/
+  483  l
+  484  cd ..
+  485  l1
+  486  less chi.dat 
+  487  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  488  ./a.out 
+  489  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  490  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  491  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  492  ./a.out 
+  493  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  494  ./a.out 
+  495  ./a.out 
+  496  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  497  ./a.out 
+  498  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  499  ./a.out 
+  500  e getqffchi.f90 -nw
+  501  e getqffchi.f90 -nw
+  502  e getqffchi.f90 -nw
+  503  e getqffchi.f90 -nw
+  504  e getqffchi.f90 -nw
+  505  e getqffchi.f90 -nw
+  506  e getqffchi.f90 -nw
+  507  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  508  ./a.out 
+  509  e debug.dat -nw
+  510  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  511  ./a.out 
+  512  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  513  e chi.dat -nw
+  514  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  515  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  516  ./a.out 
+  517  e chi.dat -nw
+  518  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  519  ./a.out 
+  520  e chi.dat -nw
+  521  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  522  ./a.out 
+  523  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  524  ./a.out 
+  525  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  526  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  527  ./a.out 
+  528  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  529  ./a.out 
+  530  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  531  ./a.out 
+  532  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  533  ./a.out 
+  534  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  535  ./a.out 
+  536  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  537  ./a.out 
+  538  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  539  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  540  ./a.out 
+  541  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -lfftw -llapack
+  542  ./a.out 
+  543  ./a.out 
+  544  ./a.out 
+  545  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -g -g3 -ggdb -lfftw -llapack
+  546  ./a.out 
+  547  gdb ./a.out 
+  548  gfortran getqffchi.f90 do_fft.f90 inv_mat.f90 -g -g3 -ggdb -lfftw -llapack
+  549  gdb ./a.out 
+  550  man gfortran
+  551  gfortran -fboundscheck getqffchi.f90 do_fft.f90 inv_mat.f90 -g -g3 -ggdb -lfftw -llapack
+  552  gfortran -fbounds_check getqffchi.f90 do_fft.f90 inv_mat.f90 -g -g3 -ggdb -lfftw -llapack
+  553  man gfortran
+  554  gfortran -fbounds-check getqffchi.f90 do_fft.f90 inv_mat.f90 -g -g3 -ggdb -lfftw -llapack
+  555  ./a.out 
+  556  history > bash_history

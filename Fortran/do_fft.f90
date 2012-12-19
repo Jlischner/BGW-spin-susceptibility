@@ -229,7 +229,7 @@ end subroutine setup
 ! - Ixc --- resulting output matrix
 !
 !***********************************************************
-subroutine getIxc(lenS,Ixc)
+subroutine getIxc(lenS,Ixc, infile)
   implicit none
   integer, parameter :: DP = kind(1.0d0)
   integer, parameter :: DPC = kind((1.0d0,1.0d0))
@@ -240,7 +240,7 @@ subroutine getIxc(lenS,Ixc)
   real(DP), allocatable, dimension(:) :: n,rs,rrs,ac,expp
   real(DP), dimension(lenS), intent(out) :: Ixc
 
-  character(len=200), parameter :: infile = "data/cd.dat"
+  character(len=200), intent(in) :: infile
 
   allocate( n(lenS) , stat=error)
 !  allocate( Ixc(lenS) , stat=error) - this was giving memory error
