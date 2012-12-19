@@ -1,0 +1,12 @@
+data1/nmtx.dat 			! filenmtx - number of matrix elements for each q-vec, ifreq
+data1/cd.dat 			! filecd - ascii charge density (QEspresso)
+data1/gvecs.dat 		! filegv - gvecs for each q-vec, ifreq (see chi02ascii) 
+data1/chimat.dat		! filechi0 - chi0 matrix converted to ascii (see chi02ascii)
+chi.dat 				! output file for the chi0
+60 60 80 				! Fourier grid size
+6.96787					! lattice constant in atomic units followed by lattice tensor in units of lattice constant
+1.0000	0.0000	0.0000	
+0.0000	1.0000	0.0000
+0.0000	0.0000	1.4624
+1						! Number of q-points
+22						! Number of frequencies
