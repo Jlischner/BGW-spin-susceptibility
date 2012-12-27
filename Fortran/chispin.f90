@@ -107,7 +107,7 @@ program chispin
   open(11,file=filechi0,form='formatted')
   do ii = 1, Nfreq*sum(nmtxdat**2)
      read(11,*) a, b
-     chi0(ii) = cmplx(a, b)/2.0
+     chi0(ii) = complex(a, b)/2.0
    enddo
   close(11)
 
@@ -148,7 +148,7 @@ program chispin
      allocate(Ident(nmtx,nmtx), stat=error)
      Ident = 0d0
      do ii = 1, nmtx
-           Ident(ii,ii) = cmplx(1d0,0d0)
+           Ident(ii,ii) = complex(1d0,0d0)
      enddo
      ! allocate row_chi0
      allocate(row_chi0 (lenS), stat=error) 

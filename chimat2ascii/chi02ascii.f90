@@ -2,55 +2,36 @@
 !
 ! Utilities:
 !
-! (1) chi0toascii      Originally By gsm      Last Modified 11/17/2010 (gsm)
+! chi0toascii      Last Modified Dec 2012
 !
-! Serial code that plots frequency dependence of Plasmon-Pole, Retarded,
-! Advanced epsilon inverse for a given q, G, G` vectors. Input parameters
+! Serial code that converts chi0 matrix into a 2-column vector in ascii format 
+! containing the real and imaginary parts of chi0. Input parameters
 ! are read from file chi0toascii.inp in the working directory.
 !
 ! chi0toascii.inp:
 !
-! eps0mat      ! epsmat file, full-frequency or static
+! chi0mat      ! chimat file, full-frequency or static
 ! wfn0         ! wavefunction file on any grid
-! RHO          ! RHO file for Plasmon-Pole
-! 0.0 0.0 0.0  ! q-vector in crystal coordinates
-! 1 0 0        ! G-vector in crystal coordinates
-! 1 0 0        ! G`-vector in crystal coordinates
-! 201          ! nFreq, for static epsmat. For full-freq., overwritten from file
-! 0.5          ! dDeltaFreq in eV, in case of static epsmat. See Above.
-! 2.0          ! dBrdning in eV, in case of static epsmat. See Above.
-! 0.1          ! Exciton binding energy to use to calculate the effective eps^-1 head for BSE.
-! epsInvPP.dat ! Plasmon-Pole epsilon inverse, Re and Im parts
-! epsInvR.dat  ! Retarded epsilon inverse, Re and Im parts
-! epsInvA.dat  ! Advanced epsilon inverse, Re and Im parts
 !
-! Note that epsInvPP constructed with full-frequency epsmat will be
-! different from epsInvPP constructed with static epsmat because of
-! finite broadening used in full-frequency epsmat.
-! JL
 !===============================================================================
 
 #include "f_defs.h"
 
 program chi0toascii
-
-
-! ----------------------------
-!   DECLARATIONS
-!-----------------------------
-
+  ! ----------------------------
+  !  DECLARATIONS
+  !-----------------------------
   use global_m
+ 
   implicit none
-
-  integer :: i,j,k,iq,mq,ig,igp,itape,indx,jj,np
-  real(DP) :: omega
+  integer :: i,j,k,iq,mq,ig,igp,indx,jj,np
   
   character*256, parameter :: fninp = "chi02ascii.inp"
-  character*256, parameter :: filechi0 = "chi0_(0,0)_nfreq="
-  character*256 :: fnchi,fnwfn,fnrho,fngpp,fnffr,fnffa
-  real(DP) :: q(3)
+  character*256 :: fnchi,fnwfn,fnrho
   
-  integer :: g(3),gp(3),gmgp(3),nband,qtot,ntranq
+  integer :: qtot,ntranq
+  ! I/O units
+  integer :: outunit_chi0, outunit_gvecs, outunit_chi_, outunit_nmtx, inputunit_chi0
   
   integer :: freq_dep,nFreq,ii,nq,ng,nmtx,qgrid(3),qmax(3)
   real(DP) :: dDeltaFreq,dBrdning,ecuts,delta,qvec(3)
@@ -61,87 +42,49 @@ program chi0toascii
   integer, allocatable :: isorti(:)
  
   complex(DPC), allocatable :: dFreqBrd(:)
-  complex(DPC), allocatable :: epsPP(:)
   complex(DPC), allocatable :: chi0R(:)
-  complex(DPC), allocatable :: epsA(:)
-  
-  real(DP) :: bdot(3,3),celvol,ebind
-  integer :: nvecs,nspin
-  
-  integer nproc_para,num_gvec,gx,gy,gz
-  complex(DPC) :: epsStatic,xcdum(2)
-  real(DP) :: rho0
-  SCALAR :: rhogmgp
-  
- 
-
-
-
-!!-----------------------------
-!! initial  I/O HANDLING
-!!-----------------------------
-
-  call open_file(unit=9,file='chimat.dat',form='formatted',status='replace')
-  call open_file(unit=8,file='gvecs.dat',form='formatted',status='replace')
-! read input file
-
+  !-----------------------------
+  ! Local variables declaration
+  !-----------------------------
+  outunit_chi0 = 8
+  outunit_gvecs = 9
+  outunit_chi_ = 10
+  outunit_nmtx = 11
+  inputunit_chi0=12
+  !-----------------------------
+  ! initial  I/O HANDLING
+  !-----------------------------
+  call open_file(unit=outunit_chi0,file='chimat.dat',form='formatted',status='replace')
+  call open_file(unit=outunit_gvecs,file='gvecs.dat',form='formatted',status='replace')
+  call open_file(unit=outunit_nmtx,file='nmtx.dat',form='formatted',status='replace')
+  ! read input file
   write(6,'(/,1x,"reading",1x,a,1x,"file",/)')trim(fninp)
   
   call open_file(55,file=trim(fninp),form='formatted',status='old')
   
   read(55,'(a)') fnchi
-  read(55,'(a)') fnwfn
   read(55,'(a)') fnrho
-  read(55,*) (q(i),i=1,3)
-  read(55,*) (g(i),i=1,3)
-  read(55,*) (gp(i),i=1,3)
-  read(55,*) nFreq
-  read(55,*) dDeltaFreq
-  read(55,*) dBrdning
-  read(55,*) ebind
-  read(55,'(a)') fngpp
-  read(55,'(a)') fnffr
-  read(55,'(a)') fnffa
   
   call close_file(55)
   
   write(6,'(2a)')       "     eps  file  = ", trim(fnchi)
-  write(6,'(2a)')       "     wfn  file  = ", trim(fnwfn)
   write(6,'(2a)')       "     rho  file  = ", trim(fnrho)
-  write(6,'(a, 3f7.3)') "     q  vector  = ", q(1:3)
-  write(6,'(a, 3i4)')   "     G  vector  = ", g(1:3)
-  write(6,'(a, 3i4)')   "     G' vector  = ", gp(1:3)
-  write(6,'(a, i6)')    "     nFreq      = ", nFreq
-  write(6,'(a, f7.3)')  "     dDeltaFreq = ", dDeltaFreq
-  write(6,'(a, f7.3)')  "     dBrdning   = ", dBrdning
-  write(6,'(a, f7.3)')  "     ebind      = ", ebind
-  write(6,'(2a)')       "     GPP file   = ", trim(fngpp)
-  write(6,'(2a)')       "     FFR file   = ", trim(fnffr)
-  write(6,'(2a,/)')     "     FFA file   = ", trim(fnffa)
-  
-  gmgp(:)=g(:)-gp(:)
-  
-
 
 !!-----------------------------
 !!  BODY
 !!-----------------------------
-
-
-  write(6,*)g(1)
-  write(6,'(1x,"reading",1x,a,1x,"file",/)')trim(fnchi)
+  !write(6,*)g(1)
+  write(6,'(1x,"reading",1x,a,1x,"file",/)') trim(fnchi)
 
   !-----------------------------------
   ! READING THE CHI0 FILE
   !-----------------------------------
-
-  itape=12
-  call open_file(unit=itape,file=trim(fnchi),form='unformatted',status='old')
+  call open_file(unit=inputunit_chi0,file=trim(fnchi),form='unformatted',status='old')
 
   ! Skipping one line
-  read(itape)
+  read(inputunit_chi0)
   ! Reading Frequency dependence and number of frequencies
-  read(itape) freq_dep,ii
+  read(inputunit_chi0) freq_dep,ii
  
   write(6,*) 'Frequency dependence ', freq_dep
  
@@ -152,13 +95,13 @@ program chi0toascii
   endif
   
   ! Reading q-grid 
-  read(itape) (qgrid(i),i=1,3)
+  read(inputunit_chi0) (qgrid(i),i=1,3)
   SAFE_ALLOCATE(dFreqGrid,(nFreq))
   SAFE_ALLOCATE(dFreqBrd,(nFreq))
  
   ! If frequancy dependent -> reading frequency grid and broadenings
   if (freq_dep.eq.2) then
-    read(itape) (dFreqGrid(i),i=1,nFreq),(dFreqBrd(i),i=1,nFreq)
+    read(inputunit_chi0) (dFreqGrid(i),i=1,nFreq),(dFreqBrd(i),i=1,nFreq)
     if (nFreq.gt.1) dDeltaFreq=dFreqGrid(2)-dFreqGrid(1)
     dBrdning=IMAG(dFreqBrd(1))
   else
@@ -167,119 +110,105 @@ program chi0toascii
       dFreqBrd(i)=dBrdning
     enddo
     ! Skipping one line
-    read(itape)
+    read(inputunit_chi0)
   endif
  
   ! Skipping one line
-  read(itape)
+  read(inputunit_chi0)
 
   ! Skipping one line
-  read(itape)
+  read(inputunit_chi0)
 
   ! Reading cutoff energy
-  read(itape) ecuts
+  read(inputunit_chi0) ecuts
  
   write(6,*) 'Screened Coulomb cutoff', ecuts
 
   ! Skipping one line
-  read(itape) !nrk
+  read(inputunit_chi0) !nrk
 
-  ! Rading number of G-vectors, number of q-points
-  read(itape) ng,qtot,qmax(1:3)
+  ! Reading number of G-vectors, number of q-points
+  read(inputunit_chi0) ng,qtot,qmax(1:3)
   write(6,*) 'Number of G-vectors, Number of k points', ng,qtot
   
   ! Going back one line 
-  backspace(itape)
+  backspace(inputunit_chi0)
   
   SAFE_ALLOCATE(gvec,(3,ng))
   SAFE_ALLOCATE(ekin,(ng))
   SAFE_ALLOCATE(isrtx,(ng))
 
   ! Reading all the g-vectors
-  read(itape) ng,qtot,qmax(1:3),((gvec(jj,ig),jj=1,3),ig=1,ng)
+  read(inputunit_chi0) ng,qtot,qmax(1:3),((gvec(jj,ig),jj=1,3),ig=1,ng)
   write(6,*) 'G1', gvec(1,1),gvec(2,1),gvec(3,1)
   write(6,*) 'G2', gvec(1,2),gvec(2,2),gvec(3,2)
 
   ! Reading the number of q-vectors
-  read(itape) nq
+  read(inputunit_chi0) nq
   write(6,*) 'Number of q vectors', nq
 
   do ii = 1,nq
 
     ! Reading ????
-     read(itape) ntranq
+     read(inputunit_chi0) ntranq
      write(6,*) 'ntranq ', ntranq
 
-     ! Reading number of martix elements, 
-     read(itape) nmtx,np,(isrtx(jj),ekin(jj),jj=1,ng)
+     ! Reading number of matrix elements, 
+     read(inputunit_chi0) nmtx,np,(isrtx(jj),ekin(jj),jj=1,ng)
      write(6,*) 'Size of chi0 ', nmtx
+     write(outunit_nmtx,*) nmtx
 
-      !-----------------------------------
-      ! WRITING G-VECTORS
-      !-----------------------------------
+     !-----------------------------------
+     ! WRITING G-VECTORS
+     !-----------------------------------
      do jj = 1,nmtx
-        write(8,*)gvec(1:3,isrtx(jj))
+        write(outunit_gvecs,*)gvec(1:3,isrtx(jj))
      enddo
      
-      !-----------------------------------
-      ! WRITING chi0
-      !-----------------------------------
+     !-----------------------------------
+     ! WRITING chi0
+     !-----------------------------------
      do j=1,nmtx
         do i=1,nmtx            
-           read(itape) (chi0R(k),k=1,nFreq)
+           read(inputunit_chi0) (chi0R(k),k=1,nFreq)
 
-      !-----------------------------------
-      ! WRITING chi0(0,0)
-      !-----------------------------------
-
+           !-----------------------------------
+           ! WRITING chi0(0,0)
+           !-----------------------------------
            if ((j.eq.1).and.(i.eq.1)) then
-
-              !call open_file(unit=13,file=trim(filechi0),form='unformatted',status='replace') 
-              write(6,100) 'Chi0', chi0R(1), chi0R(2)
-           
+               write(6,*) chi0R
            endif
               
            do indx = 1,nFreq
-              write(9,100)chi0R(indx)
+              write(outunit_chi0,100)chi0R(indx)
            enddo
         enddo
 
 #ifdef CPLX
         do i=1,nmtx
-           read(itape)
+           read(inputunit_chi0)
         enddo
 #endif
      enddo
   enddo
 
   
-  call close_file(itape)
+  call close_file(inputunit_chi0)
   
   write(6,'(a,i6)')     "     omega num  = ", nFreq
   write(6,'(a,f7.3)')   "     omega step = ", dDeltaFreq
-  write(6,'(a,f7.3,/)') "     omega brd  = ", dBrdning
+  write(6,'(a,f7.3,/)') "     omega brd  = ", dBrdning    
 
+  call close_file(outunit_chi0)
+  call close_file(outunit_gvecs)
+  call close_file(outunit_nmtx)
 !-----------------------------
-! write full frequency files
-
-  if (freq_dep.eq.2) then
-    write(6,'(1x,"writing",1x,a,1x,"and",1x,a,1x,"files",/)') &
-      trim(fnffr),trim(fnffa)
-    
-
-    call close_file(9)
-    call close_file(8)
-  endif
-
-!-----------------------------
-! deallocate and finish
+ ! deallocate and finish
   
-  SAFE_DEALLOCATE(epsPP)
   SAFE_DEALLOCATE(chi0R)
-  SAFE_DEALLOCATE(epsA)
   SAFE_DEALLOCATE(dFreqGrid)
   SAFE_DEALLOCATE(dFreqBrd)
   
 100 format(3f25.15)
-  
+
 end program chi0toascii

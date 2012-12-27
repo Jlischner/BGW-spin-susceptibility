@@ -1,0 +1,14 @@
+!=========================================================================
+!
+! Spin susceptibility Roadmap
+! Dec 2012
+!
+!=========================================================================
+
+0. Make u subroutine that reads in the BGW WFN files and compare it's output with espresso
+1. Implement a subroutine that calculates the I*chi*I:
+	- cJ(chi)
+	- I * chi * I
+	- cI(result)
+2. Implement a subroutine that calculates the Fermi surface average of the susceptibility
+3. Calculate average lambda for a small q-vector

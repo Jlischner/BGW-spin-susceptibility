@@ -3,7 +3,7 @@ setup;
 
 nmtxdat = load("nmtx.dat");
 %# factor of two because spin-resolved chi (see Rousseau/Bergara)
-chi0 = load("fulleps.dat")/2;
+chi0 = load("chimat.dat")/2;
 vcdat  = load("gvecs.dat");
 
 Nq = length(nmtxdat);
@@ -15,7 +15,10 @@ getIxc;
 
 chi0h = zeros(Nfreq,Nq);
 chih  = zeros(Nfreq,Nq);
-
+epsh  = zeros(Nfreq,Nq);
+epsih = zeros(Nfreq,Nq);
+rowB = zeros(Nfreq,Nq,95);
+rowA = zeros(Nfreq,Nq,95);
 for iq = 1:Nq;
 
   printf("doing %d of %d qpoints \n",iq,Nq);
@@ -44,12 +47,14 @@ for iq = 1:Nq;
       row_chi0(indx) = chi0f(:,ncol);
       row_chi0   = cJ( row_chi0);
       epsmat(:,ncol) = cI( row_chi0 .* Ixc)(indx);
-      
+      rowA(ifreq,iq,ncol) = cI( row_chi0 .* Ixc)(1);
     endfor;
     
     epsmat = eye(nmtx) - epsmat;
     chi = inv(epsmat) * chi0f;
     
+    epsh(ifreq,iq) = epsmat(1,1);
+    epsih(ifreq,iq) = inv(epsmat)(1,1);
     chi0h(ifreq,iq) = chi0f(1,1);
     chih(ifreq,iq)  = chi(1,1);
     
